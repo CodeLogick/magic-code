@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.apache.ivy:ivy:2.3.0'
+    }
+}
+
+plugins {
+    id "de.undercouch.download" version "3.4.3"
+}
+
+repositories {
+    mavenCentral()
+}
+
+task downloadDirectory {
+    doLast {
+        def dir = 'YOUR-URL'
+        def urlLister = new org.apache.ivy.util.url.ApacheURLLister()
+        def files = urlLister.listFiles(new URL(dir))
+        download {
+            src files
+            dest "DESTINATION-FOLDER"
+        }
+    }
+}
