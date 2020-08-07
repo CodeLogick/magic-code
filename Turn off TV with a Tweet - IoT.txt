@@ -1,0 +1,125 @@
+This post is about using IoT to control things at home from anywhere. I have tried this small project at home where i was able to turn my TV off with the help of a tweet. so , i wanted to share this .
+
+ 
+
+Before we go ahead, i would like to explain 2 things which are IoT and Raspberry Pi.
+
+ 
+
+Internet of Things [IoT] is a network or mesh of devices talking or interacting with each other without the need for human intervention. The device here can be your home appliance like TV, Refrigerator or 
+
+a Motor in an agricultural farm or even a Pacemaker implanted in your heart sending some data to the doctor's mobile app.
+
+ 
+
+Raspberry Pi is a single circuit-board computer that can be used in IoT space, you can buy it for 2000/-. It is like a Mini computer with low resources [ RAM , CPU or Disk Space] .
+
+When you buy a Raspberry Pi, first thing you gotta do is install an OS like Raspbian on it. Raspbian is an  Debian Linux based OS meant for Raspberry Pi.  This OS comes pre-installed
+
+with software like Python, Java etc
+
+ 
+
+Enough with the theory..........
+
+ 
+
+Let's discuss the hardware/setup that is required for our use-case.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+1. TV
+
+2. Raspberry Pi
+
+3. HDMI Cable
+
+.
+
+ 
+
+ 
+
+
+
+ 
+
+The TV and the Raspberry Pi are connected with the HDMI Cable.
+
+ 
+
+Let's look at the flow:
+
+>>>>>>>>>>>>>>>>
+
+It starts with sending a tweet from your Twitter App. There is a Tweet Listener API  (python process running continuously) running on the Raspberry Pi looking at the tweets to see if they contain a specific status/text , for example in this case ,it is "TurnOffTV".
+
+Once the Listener finds this particular status text in the tweet, it sends a TV Off signal with the help of HDMI CEC API.
+
+ 
+
+HDMI Standard has a feature or API called CEC (Consumer Electronics Control) which can be used to send commands to a TV. The commands can be invoked on the Linux shell with a CLI utility called cec-client.
+
+For example, the following commands can be invoked from Raspberry Pi's Linux shell or even from a Linux shell on your laptop:
+
+ 
+
+echo "on 0" | cec-client -s   // this turns on the TV
+
+echo "standby 0" | cec-client -s    // this turns off the TV
+
+ 
+
+we will be using the second command for our use-case which is to turn off the TV.
+
+ 
+
+Note :Raspberry Pi is WiFi-enabled and will connect to your home router through WiFi to connect to Internet.
+
+ 
+
+ 
+
+Shown below is the flow diagram:
+
+>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
+ 
+
+ 
+
+Shown below is the code to read a tweet from Twitter API and if the tweet contains a text called "TurnOffTV", it sends a signal to the TV using the HDMI API to turn off the TV.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+I am using an Python API called Twython  to read tweets from Twitter.
+
+This code runs on your Raspberry Pi Device listening for Tweets.
+
+ 
+
+from twython import TwythonStreamer
+
+class MyStreamer(TwythonStreamer):
+
+    def on_success(self, data):
+
+        echo "standby 0" | cec-client -s    //send cec command to the TV to turn off
+
+ 
+
+ 
+
+//create an object of the streamer class
+
+stream = MyStreamer(APP_KEY, APP_SECRET,OAUTH_TOKEN, OAUTH_TOKEN_SECRET)  // these keys can be got from Twitter portal once you create a developer account in Twitter.
+
+stream.statuses.filter(track='TurnOffTV')  //every time my tweet contains this text, on_success method is called
+
+ 
+
+ 
+
+Note : A similar use-case to turn on the TV can also be done with the above setup and a small change in the code.
